@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Canvas Drawing with Mango Plant Image</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            position: relative;
+        }
+        canvas {
+            border: 1px solid #000;
+            background-color: #fff;
+        }
+        button {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas" width="800" height="600"></canvas>
+    <script>
+        const canvas = document.getElementById("canvas");
+        const ctx = canvas.getContext("2d");
+
+        let drawing = false;
+
+        // Load the mango plant image
+        const mangoImage = new Image();
+        mangoImage.crossOrigin = "anonymous";
+        mangoImage.src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Mango_tree_with_fruits_in_Chhattisgarh.jpg/640px-Mango_tree_with_fruits_in_Chhattisgarh.jpg';
+
+        mangoImage.onload = () => {
+            ctx.drawImage(mangoImage, 100, 50, 600, 400);
+        };
+
+        // Start drawing
+        canvas.addEventListener("mousedown", (event) => {
+            drawing = true;
+            ctx.beginPath();
+            ctx.moveTo(event.offsetX, event.offsetY);
+        });
+
+        // Draw on the canvas
+        canvas.addEventListener("mousemove", (event) => {
+            if (drawing) {
+                ctx.lineTo(event.offsetX, event.offsetY);
+                ctx.stroke();
+            }
+        });
+
+        // Stop drawing
+        canvas.addEventListener("mouseup", () => {
+            drawing = false;
+            ctx.closePath();
+        });
+
+        // Clear the canvas
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            mangoImage.onload();
+        }
+
+        // Add a button to clear the canvas
+        const clearButton = document.createElement("button");
+        clearButton.innerText = "Clear Canvas";
+        clearButton.addEventListener("click", clearCanvas);
+        document.body.appendChild(clearButton);
+    </script>
+</body>
+</html>
