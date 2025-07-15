@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Network Information API Example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #video {
+            display: none;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Network Information API Example</h1>
+    <p id="connection-status">Checking connection...</p>
+    <video id="video" width="600" controls>
+        <source id="video-source" src="" type="video/mp4" />
+        Your browser does not support the video tag.
+    </video>
+
+    <script>
+        function updateConnectionStatus() {
+            const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+            const statusElement = document.getElementById('connection-status');
+            const videoElement = document.getElementById('video');
+            const videoSource = document.getElementById('video-source');
+
+            if (connection) {
+                const effectiveType = connection.effectiveType;
+                statusElement.textContent = `Connection type: ${effectiveType}`;
+
+                if (effectiveType === "slow-2g" || effectiveType === "2g") {
+                    videoSource.removeAttribute('src');
+                    videoElement.load();
+                    videoElement.style.display = "none";
+                    statusElement.textContent += " - Video loading disabled due to slow connection.";
+                } else {
+                    videoSource.src = "https://www.w3schools.com/html/mov_bbb.mp4";
+                    videoElement.style.display = "block";
+                    videoElement.load();
+                }
+            } else {
+                statusElement.textContent = "Network Information API not supported.";
+            }
+        }
+
+        updateConnectionStatus();
+
+        const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+        if (connection) {
+            connection.addEventListener('change', updateConnectionStatus);
+        }
+    </script>
+</body>
+</html>
