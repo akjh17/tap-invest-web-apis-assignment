@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Background Tasks API Example</title>
+    <style>
+        body {
+            font-family: "Open Sans", "Lucida Grande", "Arial", sans-serif;
+            font-size: 16px;
+        }
+        #logBox {
+            margin-top: 16px;
+            width: 400px;
+            height: 500px;
+            border-radius: 6px;
+            border: 1px solid black;
+            box-shadow: 4px 4px 2px black;
+        }
+        .logHeader {
+            margin: 0;
+            padding: 0 6px 4px;
+            height: 22px;
+            background-color: lightblue;
+            border-bottom: 1px solid black;
+            border-radius: 6px 6px 0 0;
+        }
+        #log {
+            font: 12px "Courier", monospace;
+            padding: 6px;
+            overflow: auto;
+            overflow-y: scroll;
+            width: 388px;
+            height: 460px;
+        }
+        #container {
+            width: 400px;
+            padding: 6px;
+            border-radius: 6px;
+            border: 1px solid black;
+            box-shadow: 4px 4px 2px black;
+            display: block;
+            overflow: auto;
+        }
+        .button {
+            padding: 4px;
+            width: 100px;
+            border: 1px solid black;
+            cursor: pointer;
+            text-align: center;
+            margin-top: 10px;
+            background-color: darkgreen;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>Background Tasks API Example</h1>
+    <div id="container">
+        <button class="button" id="startButton">Start Tasks</button>
+    </div>
+    <div id="logBox">
+        <div class="logHeader">Log</div>
+        <div id="log"></div>
+    </div>
+
+    <script>
+        const taskList = [];
+        let totalTaskCount = 0;
+        let currentTaskNumber = 0;
+        let taskHandle = null;
+
+        const logElem = document.getElementById("log");
+        const startButtonElem = document.getElementById("startButton");
+
+        function log(message) {
+            const logEntry = document.createElement("div");
+            logEntry.textContent = message;
+            logElem.appendChild(logEntry);
+        }
+
+        function enqueueTask(taskHandler, taskData) {
+            taskList.push({ handler: taskHandler, data: taskData });
+            totalTaskCount++;
+            if (!taskHandle) {
+                taskHandle = requestIdleCallback(runTaskQueue);
+            }
+        }
+
+        function runTaskQueue(deadline) {
+            while ((deadline.timeRemaining() > 0 || deadline.didTimeout) && taskList.length) {
+                const task = taskList.shift();
+                currentTaskNumber++;
+                task.handler(task.data);
+            }
+            if (taskList.length) {
+                taskHandle = requestIdleCallback(runTaskQueue);
+            } else {
+                taskHandle = null;
+            }
+        }
+
+        function performTask(taskNumber) {
+            log(`Performing task ${taskNumber}`);
+            // Simulate a time-consuming task
+            for (let i = 0; i < 1e7; i++) {}
+        }
+
+        startButtonElem.addEventListener("click", () => {
+            for (let i = 1; i <= 10; i++) {
+                enqueueTask(performTask, i);
+            }
+        });
+    </script>
+</body>
+</html>
